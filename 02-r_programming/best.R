@@ -1,30 +1,30 @@
 ## TODO: get rid of hard coding
 best <- function(state, outcome) {
-	## Read outcome data
-	dat <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
+    ## Read outcome data
+    dat <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
 
-	## Check that state and outcome are valid
-	states <- unique(dat[,7]) ## 7 = State Column
-	if (!is.element(state,states)) {
-		stop("invalid state")
-	}
+    ## Check that state and outcome are valid
+    states <- unique(dat[,7]) ## 7 = State Column
+    if (!is.element(state,states)) {
+        stop("invalid state")
+    }
 
-	colIndex = 0
-	if (outcome == "heart attack") {
-		colIndex = 11
-	} else {
-		if (outcome == "heart failure") {
-			colIndex = 17
-		} else {
-			if (outcome == "pneumonia") {
-				colIndex = 23
-			} else {
-				stop("invalid outcome")
-			}
-		}
-	}
+    colIndex = 0
+    if (outcome == "heart attack") {
+        colIndex = 11
+    } else {
+        if (outcome == "heart failure") {
+            colIndex = 17
+        } else {
+            if (outcome == "pneumonia") {
+                colIndex = 23
+            } else {
+                stop("invalid outcome")
+            }
+        }
+    }
 
-	## Return hospital name in that state with lowest 30-day death
-	## rate
-	sort(dat[2][dat[7] == state & dat[colIndex] == min(dat[colIndex][dat[7] == state & !is.na(dat[colIndex])])])[1] ## Column 2 = Hospital Name
+    ## Return hospital name in that state with lowest 30-day death
+    ## rate
+    sort(dat[2][dat[7] == state & dat[colIndex] == min(dat[colIndex][dat[7] == state & !is.na(dat[colIndex]) & dat[colIndex]!="Not Available"])])[1] ## Column 2 = Hospital Name
 }
