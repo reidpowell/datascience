@@ -1,4 +1,5 @@
 ## TODO: get rid of hard coding
+library(sqldf)
 rankall <- function(outcome, num) {
     ## Read outcome data
     dat <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
@@ -24,14 +25,18 @@ rankall <- function(outcome, num) {
     dat <- dat[dat[3] != "Not Available",]
     names(dat) <- c("hospital","state","outcome")
     dat <- dat[with(dat, order(outcome,hospital)),]
-    dat <- transform(dat,outcome.rank = ave(as.numeric(outcome), state, FUN = function(x) rank(x, ties.method = "first")))
+    dat <- transform(dat,outcomerank = ave(as.numeric(outcome), state, FUN = function(x) rank(x, ties.method = "first")))
     # dat <- dat[order(-dat[,3],dat[,1])]
     #dat[with(dat, order(outcome,hospital)),]
-    dat <- dat[dat$outcome.rank == num, ]
-    if (num == "worst") {
-        dat <- dat[with(dat, order)]
-    }
 
+    #if (num != "worst") {
+    #    dat <- dat[dat$outcome.rank == num, ]        
+    #} else {
+        maxoutcomebystate <- "select state, max(outcomerank) as max_state_rank from dat group by state"
+        maxoutcomebystate <- sqldf(maxoutcomebystate)
+    #}
+
+    result <- "select maxoutcomebystate.state, dat.hospital from maxoutcomebystate left join dat on dat.state = maxoutcomebystate.state and dat.outcomerank = maxoutcomebystate.max_state_rank"
 
     states <- data.frame(sort(unique(dat$state)))
     names(states) = c("abbrev")
